@@ -19,6 +19,8 @@ public class Answer {
   private Long id;
 
   private String text;
+  
+  private boolean deleted;
 
   private boolean correct = false;
 

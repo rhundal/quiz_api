@@ -20,8 +20,11 @@ public class Quiz {
   private Long id;
 
   private String name;
+    
+  private boolean deleted;
 
   @OneToMany(mappedBy = "quiz")
   private List<Question> questions;
+
 
 }

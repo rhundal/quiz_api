@@ -2,6 +2,7 @@ package com.cooksys.quiz_api.dtos;
 
 import java.util.List;
 
+import com.cooksys.quiz_api.entities.Answer;
 import com.cooksys.quiz_api.entities.Question;
 
 import lombok.Data;
@@ -9,14 +10,11 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-public class QuestionResponseDto {
+public class AnswerRequestDto {
 
-  private Long id;
+	  //private Question question;
 
-  private String text;
+	  private String text;
 
-  private Question question;
-  
-  private List<AnswerResponseDto> answers;
-
+	private List<Answer> answers;
 }
