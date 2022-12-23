@@ -15,6 +15,8 @@ public class AnswerRequestDto {
 	  //private Question question;
 
 	  private String text;
+	  
+	  private boolean correct;
 
-	private List<Answer> answers;
+	//private List<Answer> answers;
 }

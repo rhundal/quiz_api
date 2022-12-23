@@ -15,7 +15,7 @@ public class QuestionResponseDto {
 
   private String text;
 
-  private Question question;
+  //private Question question;
   
   private List<AnswerResponseDto> answers;
 

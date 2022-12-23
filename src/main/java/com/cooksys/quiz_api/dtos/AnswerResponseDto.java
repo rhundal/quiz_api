@@ -16,8 +16,8 @@ public class AnswerResponseDto {
 
   private String text;
   
-  private Question question;
+ // private Question question;
 
-  private List<Answer> answers;
+  //private List<Answer> answers;
 
 }

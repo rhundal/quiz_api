@@ -13,13 +13,12 @@ public interface AnswerMapper {
 
 	//	List<Answer> requestDto_To_Entity(List<AnswerRequestDto> aDTO);
 
-	
+  	
+
   List<Answer> requestDto_To_Entity(List<AnswerRequestDto> aDTO);
 
   AnswerResponseDto entityToDto(Answer entity);
 
   List<AnswerResponseDto> entitiesToDtos(List<Answer> entities);
-
-    List<Answer> requestList_To_List(List<Answer> answers);
 
 }

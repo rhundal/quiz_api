@@ -44,8 +44,8 @@ public class QuizServiceImpl implements QuizService {
   @Override
   public List<QuizResponseDto> getAllQuizzes() {
 	  
-   // return quizMapper.entitiesToDtos(quizRepository.findAllByDeletedFalse());
-    return quizMapper.entitiesToDtos(quizRepository.findAll());
+    return quizMapper.entitiesToDtos(quizRepository.findAllByDeletedFalse());
+   // return quizMapper.entitiesToDtos(quizRepository.findAll());
 
   }
 
@@ -165,135 +165,87 @@ public class QuizServiceImpl implements QuizService {
 
 
 	}
-
 	
-	/*
-	@Override
-	  public QuizResponseDto add(Long id, QuestionRequestDto questionRequestDto) {
-
-		if(questionRequestDto.getText() == null) {
-			
-			throw new BadRequestException("Question is required to be added to the quiz response dto");
-		}
-		
-			
-		Question questionToAdd = questionMapper.requestDto_To_Entity(questionRequestDto);	// constructing the question to add
-		questionToAdd.setText(questionRequestDto.getText());		
-		//System.out.println("--- > questionToAdd.getText() = " + questionRequestDto.getText());			
-
-		// construct answers
-		
-		List<Answer> answerToAdd = answerMapper.requestList_To_List(questionToAdd.getAnswers());
-		
-		System.out.println("out of loop " + questionToAdd.getAnswers().size());
-		for(int x = 0; x < questionToAdd.getAnswers().size(); x++) {
-			
-			
-			//answerToAdd.get(x).setId(id);	// set id
-			answerToAdd.get(x).setText(questionToAdd.getAnswers().get(x).getText());
-			
-			if(questionToAdd.getAnswers().size() > 0) {
-				System.out.println("out of loop " + questionToAdd.getAnswers().size());
-				break;
-			}
-
-		}
-		
-		questionToAdd.setAnswers(answerToAdd);
-
-		
-		List<Question> quesList = new ArrayList<Question>();	// not sure here
-		quesList.add(questionToAdd);
-		
-		//List<Answer> answersForQuestion = answerRequestDto.getAnswers();  setting answers up 
-		
-		Quiz newQuiz = addQuestion(id, quesList);
-				
-		return quizMapper.entityToDto(quizRepository.saveAndFlush(newQuiz));
-		
-	} */
-	
+	// Adds a question to the specified quiz. Receives a Question, adds it with its respective answers
 	
 	@Override
 	  public QuizResponseDto add(Long id, QuestionRequestDto questionRequestDto) {
 
-		if(questionRequestDto.getText() == null) {
+		
+		if(questionRequestDto.getText() == null || id == null) {
 			
-			System.out.println("question is null - resend question with text");
+			//System.out.println("question is null - resend question with text");
 
-			throw new BadRequestException("Question is required to be added to the quiz response dto");
+			throw new BadRequestException("Question text and quiz id are required");
 			
 		}
-		
-		
-		////////////////////////////////////////////////////////////////////////
-		
-		Quiz quizToFetch = getQuiz(id);		// fetch quiz by id
-	    //int qtyQuizQuestions = quizToFetch.getQuestions().size();	// get number of questions in quiz 
-	    
+						
+		Quiz quizToFetch = getQuiz(id);		// fetch quiz by id	    
 	    
 	    Question questionToAdd = questionMapper.requestDto_To_Entity(questionRequestDto);	// constructing the question to add
-		questionToAdd.setText(questionRequestDto.getText());   // not right
+		questionToAdd.setQuiz(quizToFetch);	    
+	    questionRepository.saveAndFlush(questionToAdd);
+
 	    
-	    
-	    List<Question> quesList = new ArrayList<Question>();	// not sure here
-		quesList.addAll(quizToFetch.getQuestions());
-		quesList.add(questionToAdd);
+	    for(Answer a : questionToAdd.getAnswers()) {
+	    	
+	    	answerRepository.saveAndFlush(a);
+	    	a.setQuestion(questionToAdd);
+
+	    }
+	    quizToFetch.getQuestions().add(questionToAdd);
+
 				
-	    quizToFetch.setQuestions(quesList);
-	    
-	    Quiz updatedQuiz = quizToFetch;
-				
-		return quizMapper.entityToDto(quizRepository.saveAndFlush(updatedQuiz));
+		return quizMapper.entityToDto(quizRepository.saveAndFlush(quizToFetch));
 		
-			
-		/////////////////////////////////////////////////////////////////////////
-		
-		
-		//System.out.println("--- > questionToAdd.getText() = " + questionRequestDto.getText());			
-		
-		//questionToAdd.setAnswers(answerToAdd);
-		
-		
-		
-		
-		//List<Answer> answersForQuestion = answerRequestDto.getAnswers();  setting answers up 
-		
-		//Quiz newQuiz = addQuestion(id, quesList);
+
 		
 	}
 
 	@Override
-	public QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID) {
+	public QuestionResponseDto deleteQuestionFromQuiz(Long id, QuizResponseDto quizResponseDto, Long questionID) {
 
-
-		Question questionToDelete = getQuestion(questionID);
 		
-		Quiz quizToDeleteFrom = getQuiz(id);
-		// iterate thru the questions in quiz
-		// check if question == questionToDelete
-		// delete its answers
-		// delete the question and return
-		
-		for(int i = 0; i < quizToDeleteFrom.getQuestions().size(); i++) {
+		if(id == null){
 			
-			if(quizToDeleteFrom.getQuestions().get(i) == questionToDelete) {
-				
-				quizToDeleteFrom.getQuestions().get(i).setDeleted(true);
-				
-				quizToDeleteFrom.getQuestions().get(i).getAnswers().get(i).setDeleted(true);
-				
-				questionToDelete.setId(quizToDeleteFrom.getQuestions().get(i).getId());
-				
-			}
+			throw new BadRequestException("Quiz id is required");
+			
 		}
 		
+		if(questionID == null){
+			
+			throw new BadRequestException("Question id is required");
+			
+		}
+		
+		Quiz quizToDeleteFrom = getQuiz(id);
+		
+		Question qToDel = questionRepository.getById(questionID);
+
+		for(Question q : quizToDeleteFrom.getQuestions()) {
+			
+			if(q.getId() == questionID) {
+
+				qToDel = questionRepository.getById(q.getId());
+
+				for(Answer a : qToDel.getAnswers()) {
+					
+			    	//a.setQuestion(null);
+					a.setDeleted(true);
+					answerRepository.saveAndFlush(a);
 				
-		return questionMapper.entityToDto(questionRepository.saveAndFlush(questionToDelete));
-						
+				}
+				qToDel.setDeleted(true);
+				
+			}
+
+		}
+		return questionMapper.entityToDto(questionRepository.saveAndFlush(qToDel));
+				
 		
 	}
 	
+	/*
 	private Question getQuestion(Long id) {		
 
 		Optional<Question> optionalQuestion = questionRepository.findByIdAndDeletedFalse(id);
@@ -309,7 +261,7 @@ public class QuizServiceImpl implements QuizService {
 		
 		return optionalQuestion.get();
 		
-	}
+	} */
 	
 
 	

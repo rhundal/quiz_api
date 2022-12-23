@@ -31,7 +31,7 @@ public interface QuizService {
 
   QuizResponseDto add(Long id, QuestionRequestDto questionRequestDto);
 
-  QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID);
+  QuestionResponseDto deleteQuestionFromQuiz(Long id, QuizResponseDto quizResponseDto, Long questionID);
   
  // Quiz addQuestion(Long id, List<Question> text);
 

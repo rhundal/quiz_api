@@ -103,12 +103,11 @@ Returns the Quiz that it created
 Returns the deleted Question
 	 */
 	
-	
-	
-	@DeleteMapping("/{id}/delete/questionID")
-	public QuestionResponseDto deleteQuestionFromQuiz(@PathVariable Long id, Long questionID) {
 		
-		return quizService.deleteQuestionFromQuiz(id, questionID);
+	@DeleteMapping("/{id}/delete/{questionID}")
+	public QuestionResponseDto deleteQuestionFromQuiz(@PathVariable Long id, QuizResponseDto quizResponseDtoLong, Long questionID) {
+		
+		return quizService.deleteQuestionFromQuiz(id, quizResponseDtoLong, questionID);
 	}
 	
 	
