@@ -50,28 +50,36 @@ public class QuizServiceImpl implements QuizService {
   }
 
 	@Override
-	public ResponseEntity<QuizResponseDto> createQuiz(QuizRequestDto quizRequesttDto) {
+	public ResponseEntity<QuizResponseDto> createQuiz(QuizResponseDto quizResponseDto) {
 
-		// to create a quiz
-		// - you need questions, answers 
-		
-	//	name, List<Question> questions
 
-		if(quizRequesttDto.getName() == null) {
-				//|| quizRequesttDto.getQuestions() == null) {
-			
+		if(quizResponseDto.getName() == null) {		
 			
 			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
 
 		}
 
-		// Map the quizRequestDto to quiz Entity
-		Quiz quizToSave = quizMapper.requestDTO_To_Entity(quizRequesttDto);
-		quizToSave.setName(quizRequesttDto.getName());
+ 		Quiz quizToSave = quizMapper.requestDTO_To_Entity(quizResponseDto);
+		quizToSave.setName(quizResponseDto.getName());
 		quizToSave.setDeleted(false);
+		
+		quizRepository.saveAndFlush(quizToSave);
 
-		//quizToSave.setQuestions(quizRequesttDto.getQuestions());
+		for(Question q : quizToSave.getQuestions()) {	// set answers for each question
+			
+			q.setQuiz(quizToSave);
+			q.setDeleted(false);
+			questionRepository.saveAndFlush(q);
+			
+			for(Answer a : q.getAnswers()) {
+		    	
+		    	a.setQuestion(q);
+		    	answerRepository.saveAndFlush(a);
 
+		    }
+			
+		}
+		
 
 		return new ResponseEntity<>(quizMapper.entityToDto(quizRepository.saveAndFlush(quizToSave)), HttpStatus.OK);
 
@@ -81,9 +89,33 @@ public class QuizServiceImpl implements QuizService {
 	public QuizResponseDto deleteQuiz(Long id) {
 		
 		Quiz quizToDelete = getQuiz(id);
+		
+		for(Question q : quizToDelete.getQuestions()) {	// delete all questions for specified quiz
+				
+				q.setDeleted(true);
+				questionRepository.saveAndFlush(q);
+				
+				for(Answer a : q.getAnswers()) {
+			    	
+			    	a.setDeleted(true);
+			    	answerRepository.saveAndFlush(a);
+	
+			    }
+				
+			}
+		
+		
 		quizToDelete.setDeleted(true);
 				
 		return quizMapper.entityToDto(quizRepository.saveAndFlush(quizToDelete));
+		
+		
+		/*
+		Quiz quizToDelete = getQuiz(id);
+		quizToDelete.setDeleted(true);
+				
+		return quizMapper.entityToDto(quizRepository.saveAndFlush(quizToDelete));
+		*/
 	}
 
 	
@@ -203,9 +235,9 @@ public class QuizServiceImpl implements QuizService {
 	}
 
 	@Override
-	public QuestionResponseDto deleteQuestionFromQuiz(Long id, QuizResponseDto quizResponseDto, Long questionID) {
+	public QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID) {
 
-		
+		/*
 		if(id == null){
 			
 			throw new BadRequestException("Quiz id is required");
@@ -216,7 +248,7 @@ public class QuizServiceImpl implements QuizService {
 			
 			throw new BadRequestException("Question id is required");
 			
-		}
+		}*/
 		
 		Quiz quizToDeleteFrom = getQuiz(id);
 		

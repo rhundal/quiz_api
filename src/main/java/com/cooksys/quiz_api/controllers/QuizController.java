@@ -47,10 +47,10 @@ Returns the Quiz that it created
 	}
   
 	@PostMapping  
-	public ResponseEntity<QuizResponseDto> createQuiz(@RequestBody QuizRequestDto quiz) {
+	public ResponseEntity<QuizResponseDto> createQuiz(@RequestBody QuizResponseDto quizResponseDto) {
 		/* @RequestBody tells spring it is receiving a JSON request - should be a quiz object */
 		
-		return quizService.createQuiz(quiz);
+		return quizService.createQuiz(quizResponseDto);
 		
 	}
  
@@ -62,7 +62,7 @@ Returns the Quiz that it created
 	}
 	
 	
-	@PatchMapping("/{id}")
+	@PatchMapping("/{id}/rename")
 	public QuizResponseDto rename(@PathVariable Long id, @RequestBody QuizRequestDto quizRequestDto) {
 		
 		return quizService.rename(id, quizRequestDto);
@@ -105,9 +105,9 @@ Returns the deleted Question
 	
 		
 	@DeleteMapping("/{id}/delete/{questionID}")
-	public QuestionResponseDto deleteQuestionFromQuiz(@PathVariable Long id, QuizResponseDto quizResponseDtoLong, Long questionID) {
+	public QuestionResponseDto deleteQuestionFromQuiz(@PathVariable Long id, @PathVariable Long questionID) {
 		
-		return quizService.deleteQuestionFromQuiz(id, quizResponseDtoLong, questionID);
+		return quizService.deleteQuestionFromQuiz(id, questionID);
 	}
 	
 	

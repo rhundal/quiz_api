@@ -17,11 +17,9 @@ public interface QuizService {
 
   List<QuizResponseDto> getAllQuizzes();
 
-  ResponseEntity<QuizResponseDto> createQuiz(QuizRequestDto quiz);
+  ResponseEntity<QuizResponseDto> createQuiz(QuizResponseDto quizResponseDto);
 
   QuizResponseDto deleteQuiz(Long id);
-
-  //QuizResponseDto getQuizById(Long id);
   
   ResponseEntity<QuizResponseDto> getQuizById(Long id);
 
@@ -31,7 +29,7 @@ public interface QuizService {
 
   QuizResponseDto add(Long id, QuestionRequestDto questionRequestDto);
 
-  QuestionResponseDto deleteQuestionFromQuiz(Long id, QuizResponseDto quizResponseDto, Long questionID);
+  QuestionResponseDto deleteQuestionFromQuiz(Long id, Long questionID);
   
  // Quiz addQuestion(Long id, List<Question> text);
 
